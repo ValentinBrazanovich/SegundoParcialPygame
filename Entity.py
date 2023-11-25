@@ -109,12 +109,6 @@ class Entity(pygame.sprite.Sprite):
                 if not self.char_type == "Solo":
                     self.direction *= -1
                     self.move_counter = 0
-            if self.char_type == "Stormtrooper":
-                if tile[1].colliderect(self.rect.x + dx + 1, self.rect.y, self.width, self.height):
-                    dx = 0
-                    #Si la ia choca con una pared, se da vuelta
-                    self.direction *= -1
-                    self.move_counter = 0
             #colision en eje y
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 #si choca el top del personaje con el bottom de un bloque

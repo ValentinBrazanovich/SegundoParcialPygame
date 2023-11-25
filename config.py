@@ -92,40 +92,6 @@ huds = [health_hud,
         ammo_hud, time_hud]
 
 
-#sonidos
-#sonidos de items
-pygame.mixer.init()
-coin_sound = pygame.mixer.Sound("Recursos\Items\Coin_sound.mp3")
-coin_sound.set_volume(0.3)
-ammo_sound = pygame.mixer.Sound("Recursos\Items\Ammo_sound.mp3")
-ammo_sound.set_volume(0.5)
-health_sound = pygame.mixer.Sound("Recursos\Items\Health_sound.mp3")
-health_sound.set_volume(0.2)
-click_sound = pygame.mixer.Sound("Recursos\Menus\click.mp3")
-click_sound.set_volume(0.2)
-
-#Sonidos de muerte
-boss_death_sound = pygame.mixer.Sound("Recursos\Boss\Lego_yoda_death_sound.mp3")
-boss_death_sound.set_volume(0.3)
-arachnid_death_sound = pygame.mixer.Sound("Recursos\Arachnid\explode.mp3")
-arachnid_death_sound.set_volume(0.3)
-#Sonidos de balas
-shoot_sounds = {
-    "Solo"          : "",
-    "Stormtrooper"  : "",
-    "Arachnid"      : "",
-    "Boss"          : ""
-}
-
-for shoot_sound in range(AMMO_TYPES):
-    sound = pygame.mixer.Sound(f"Recursos\Projectile\{shoot_sound}.mp3")
-    sound.set_volume(0.2)
-    shoot_sounds["Solo" if shoot_sound == 0 else
-               "Stormtrooper" if shoot_sound == 1 else
-               "Arachnid" if shoot_sound == 2 else
-               "Boss"] = sound
-
-#cargar imagenes
 #guarda los game tiles en una lista
 img_tile_list = []
 for x in range(TILE_TYPES):
@@ -147,7 +113,6 @@ for ammo in range(AMMO_TYPES):
                "Arachnid" if ammo == 2 else
                "Boss"] = img_bullet
 
-
 #items
 item_boxes = {
     "Health": "",
@@ -160,6 +125,7 @@ for item in range(ITEM_TYPES):
     item_boxes["Health" if item == 0 else
                "Coin" if item == 1 else
                "Ammo"] = img_item
+
 
 
 #sonidos
@@ -194,43 +160,6 @@ for shoot_sound in range(AMMO_TYPES):
                "Stormtrooper" if shoot_sound == 1 else
                "Arachnid" if shoot_sound == 2 else
                "Boss"] = sound
-
-
-#cargar imagenes
-#guarda los game tiles en una lista
-img_tile_list = []
-for x in range(TILE_TYPES):
-    img = pygame.image.load(f"Recursos/Plataformas/{x}.png")
-    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
-    img_tile_list.append(img)
-
-
-#balas
-ammo_types = {
-    "Solo"          : "",
-    "Stormtrooper"  : "",
-    "Arachnid"      : "",
-    "Boss"          : ""
-}
-for ammo in range(AMMO_TYPES):
-    img_bullet = pygame.image.load(f"Recursos/Projectile/{ammo}.png")
-    ammo_types["Solo" if ammo == 0 else
-               "Stormtrooper" if ammo == 1 else
-               "Arachnid" if ammo == 2 else
-               "Boss"] = img_bullet
-
-#items
-item_boxes = {
-    "Health": "",
-    "Coin"  : "",
-    "Ammo"  : ""
-}
-
-for item in range(ITEM_TYPES):
-    img_item = pygame.image.load(f"Recursos/Items/{item}.png")
-    item_boxes["Health" if item == 0 else
-               "Coin" if item == 1 else
-               "Ammo"] = img_item
 
 
 

@@ -30,7 +30,7 @@ class World():
                         item_box = Item("Coin", x * TILE_SIZE, y * TILE_SIZE, (TILE_SIZE * 0.8, TILE_SIZE * 0.8))
                         item_box_group.add(item_box)
                     elif tile == 8: #crea una salida
-                        exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
+                        exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE, (150, 100))
                         exit_group.add(exit)
                     elif tile == 9: #crea vida/frasco de bacta
                         item_box = Item("Health", x * TILE_SIZE, y * TILE_SIZE, (TILE_SIZE * 0.8, TILE_SIZE * 0.8))

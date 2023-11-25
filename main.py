@@ -8,8 +8,6 @@ pygame.init()
 pygame.mixer.init()
 
 
-#fuentes
-score_font = pygame.font.SysFont("Verdana", 30)
 
 
 def cambiar_musica(musica, empieza):
@@ -369,8 +367,8 @@ while run:
             if not show_pause_menu and player.alive and not player.level_completed:
                 tiempo_restante -= 1
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_p:
-                # Cambia el valor de show_buttons al presionar 
+            if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
+                # Cambia el valor de show_pause_menu al presionar 
                 show_pause_menu = not show_pause_menu
             if not shoot:
                 if event.key == pygame.K_LEFT:
@@ -382,8 +380,6 @@ while run:
             if ((event.key == pygame.K_SPACE or event.key == pygame.K_UP)
                 and player.alive and not player.in_air):
                 player.jump = True
-            if event.key == pygame.K_ESCAPE:
-                run = False
         #se sueltan los botones
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
