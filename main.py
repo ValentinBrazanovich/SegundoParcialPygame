@@ -1,12 +1,8 @@
-import pygame, sqlite3
+import pygame, sqlite3, re
 from config import *
 from Slider import *
 from Button import *
 from World import *
-
-pygame.init()
-pygame.mixer.init()
-
 
 
 
@@ -102,14 +98,15 @@ def menu_score(nombre_archivo):
         espacios_x = 245
         espacios_y += 95
         screen.blit(score_table_img, (espacios_x, espacios_y))
-        for x in range(2):
+        for x in range(3):
             screen.blit(score_table_img, (espacios_x, espacios_y))
             espacios_x += 175
-    draw_text("LEVEL     SCORE", score_font, WHITE, WIDTH // 2 - 210, HEIGHT // 2 - 210)
+    draw_text("LEVEL       SCORE     PLAYER", score_font, WHITE, WIDTH // 2 - 210, HEIGHT // 2 - 210)
     for nivel in range(NIVELES):
         espacios_y += 100
         nivel_score = cargar_scores(nombre_archivo, nivel+1)
-        draw_text(f"NIVEL {nivel_score[0]}      {nivel_score[1]}", score_font, WHITE, espacios_x - 325, espacios_y - 275)
+        draw_text(f"NIVEL {nivel_score[0]}      {nivel_score[1]}", score_font, WHITE, espacios_x - 500, espacios_y - 275)
+        draw_text(f"{nivel_score[2]}", score_font, WHITE, espacios_x - 165, espacios_y - 275)
     if retry_button.draw(screen):
         resetear_scores(nombre_archivo)
 
@@ -123,23 +120,25 @@ def crear_scores(nombre_archivo):
                             create table Scores
                             (
                                 nivel integer primary key autoincrement,
-                                score integer
+                                score integer,
+                                player text
                             )
                             '''
                 conexion.execute(sentencia)
 
                 sentencia = '''
-                            insert into Scores (score) values (?)
+                            insert into Scores (score, player) values (?, ?)
                             '''
 
                 for nivel in range(3):
                     score = 0
-                    conexion.execute(sentencia, (score,))
+                    player = "Name"
+                    conexion.execute(sentencia, (score, player))
             except Exception as e:
                 print(f"Error al crear archivo!{e}")
         
 
-def guardar_scores(nombre_archivo, level, score):
+def guardar_scores(nombre_archivo, level, score, nombre_jugador):
     #si el archivo no existe, lo crea
     crear_scores(nombre_archivo)
 
@@ -152,8 +151,8 @@ def guardar_scores(nombre_archivo, level, score):
             
             #verifica que el score anterior sea menor al nuevo
             if resultado[1] < score:
-                sentencia = 'UPDATE Scores SET score = ? WHERE nivel = ?'
-                conexion.execute(sentencia, (score, level))
+                sentencia = 'UPDATE Scores SET score = ?, player = ? WHERE nivel = ?'
+                conexion.execute(sentencia, (score, nombre_jugador, level))
 
 
         except Exception as e:
@@ -165,8 +164,8 @@ def cargar_scores(nombre_archivo, level):
     with sqlite3.connect(nombre_archivo) as conexion:
         try:
             #consulta de donde sacar los valores
-            sentencia = 'SELECT nivel, score FROM Scores WHERE nivel = ?'
-            #me da una tupla con el numero del nivel y el score de ese nivel
+            sentencia = 'SELECT nivel, score, player FROM Scores WHERE nivel = ?'
+            #me da una tupla con el numero del nivel, el score y el jugador de ese nivel
             resultado = conexion.execute(sentencia, (level,)).fetchone()
 
         except Exception as e:
@@ -182,8 +181,9 @@ def resetear_scores(nombre_archivo):
             try:
                 #consulta donde poner el score
                 for nivel in range(NIVELES):
-                    sentencia = 'UPDATE Scores SET score = ? WHERE nivel = ?'
-                    conexion.execute(sentencia, (0, nivel+1))
+                    sentencia = 'UPDATE Scores SET score = ?, player = ? WHERE nivel = ?'
+                    conexion.execute(sentencia, (0, "Name", nivel + 1))
+
 
             except Exception as e:
                 print(f"ERROR! {e}")
@@ -201,7 +201,13 @@ level1_button = Button(WIDTH // 2 - 200, HEIGHT // 2, level1_img, 2)
 level2_button = Button(WIDTH // 2 - 50, HEIGHT // 2, level2_img, 2)
 level3_button = Button(WIDTH // 2 + 100, HEIGHT // 2, level3_img, 2)
 #Slider para el volumen
-slider = Slider((WIDTH // 2 + 75, HEIGHT // 2), (350, 30), 0.2, 0, 100)
+slider = Slider((WIDTH // 2 + 75, HEIGHT // 2),
+    (350, 30),
+    0.2,
+    0,
+    100,
+    on_update = lambda: volumen / 100,
+    on_draw = lambda: draw_text(f"{int(volumen)} %", score_font, "gray", WIDTH // 2 + 25, HEIGHT // 2 + 95))
 
 
 #se carga el jugador, su barra de vida y el mundo
@@ -238,6 +244,9 @@ while run:
 
             if current_menu == "levels":
                 screen.blit(level_select_img, (200, 260))
+                text_surface = score_font.render(player_name, True, WHITE)
+                screen.blit(text_input_img, (WIDTH // 2, HEIGHT // 2 + 150))
+                screen.blit(text_surface, (WIDTH // 2 + 15, HEIGHT // 2 + 165))
                 if level1_button.draw(screen):
                     pygame.mixer.music.stop()
                     tiempo_restante = NORMAL_TIME
@@ -356,7 +365,7 @@ while run:
                 show_pause_menu = False
             #se guarda el score
             score = player.score + tiempo_restante
-            guardar_scores(nombre_archivo_scores, level, score)
+            guardar_scores(nombre_archivo_scores, level, score, player_name)
        
 
     for event in pygame.event.get():
@@ -367,6 +376,14 @@ while run:
             if not show_pause_menu and player.alive and not player.level_completed:
                 tiempo_restante -= 1
         if event.type == pygame.KEYDOWN:
+            if current_menu == "levels" and not start_game:
+                if event.key == pygame.K_BACKSPACE:
+                    player_name = player_name[:-1]
+                elif len(player_name) < 7:
+                    # Se verifica si el caracter ingresado es una letra o numero utilizando regex
+                    if re.match(r'^[a-zA-Z0-9]$', event.unicode):
+                        player_name += event.unicode
+
             if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
                 # Cambia el valor de show_pause_menu al presionar 
                 show_pause_menu = not show_pause_menu
